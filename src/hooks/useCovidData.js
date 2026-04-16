@@ -17,13 +17,12 @@ export const useCovidData = () => {
           const response = await fetch(url);
           if (!response.ok) throw new Error(`Failed to fetch ${url}`);
           const csvText = await response.text();
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             Papa.parse(csvText, {
               header: true,
               dynamicTyping: true,
               skipEmptyLines: true,
               complete: (results) => resolve(results.data),
-              error: (error) => reject(error),
             });
           });
         };
