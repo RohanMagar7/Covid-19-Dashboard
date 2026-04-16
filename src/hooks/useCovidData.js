@@ -2,52 +2,42 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 
 export const useCovidData = () => {
-  const [countryData, setCountryData] = useState([]);
-  const [timelineData, setTimelineData] = useState([]);
+  const [data, setData] = useState({
+    countryData: [],
+    dayData: [],
+    groupedData: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        const fetchCSV = async (url) => {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+          const csvText = await response.text();
+          return new Promise((resolve, reject) => {
+            Papa.parse(csvText, {
+              header: true,
+              dynamicTyping: true,
+              skipEmptyLines: true,
+              complete: (results) => resolve(results.data),
+              error: (error) => reject(error),
+            });
+          });
+        };
 
-        const [countryRes, timelineRes] = await Promise.all([
-          fetch('/data/country_wise_latest.csv'),
-          fetch('/data/day_wise.csv')
-          
+        const [countryRes, dayRes, groupedRes] = await Promise.all([
+          fetchCSV('/data/country_wise_latest.csv'),
+          fetchCSV('/data/day_wise.csv'),
+          fetchCSV('/data/full_grouped.csv')
         ]);
 
-        if (!countryRes.ok || !timelineRes.ok) {
-          throw new Error('Failed to fetch data files');
-        }
-
-        const countryText = await countryRes.text();
-        const timelineText = await timelineRes.text();
-
-        Papa.parse(countryText, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setCountryData(results.data);
-          },
-          error: (err) => {
-            throw new Error(`Error parsing country data: ${err.message}`);
-          }
-        });
-
-        Papa.parse(timelineText, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setTimelineData(results.data);
-          },
-          error: (err) => {
-            throw new Error(`Error parsing timeline data: ${err.message}`);
-          }
+        setData({
+          countryData: countryRes,
+          dayData: dayRes,
+          groupedData: groupedRes
         });
       } catch (err) {
         setError(err.message);
@@ -56,8 +46,8 @@ export const useCovidData = () => {
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
-  return { countryData, timelineData, loading, error };
+  return { data, loading, error };
 };

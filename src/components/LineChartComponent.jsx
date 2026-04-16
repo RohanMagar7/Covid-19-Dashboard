@@ -1,62 +1,57 @@
 import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp } from 'lucide-react';
 
 export default function LineChartComponent({ data }) {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return [];
     return data.map(item => ({
-      date: item['Date'],
+      Date: item['Date'],
       Confirmed: item['Confirmed'],
       Deaths: item['Deaths'],
       Recovered: item['Recovered']
-    })).sort((a, b) => new Date(a.date) - new Date(b.date));
+    })).sort((a, b) => new Date(a.Date) - new Date(b.Date));
   }, [data]);
 
-  if (!chartData.length) return <div className="flex h-96 items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-500 shadow-sm">No timeline data available</div>;
+  if (!chartData || chartData.length === 0) return (
+    <div className="h-full w-full flex items-center justify-center text-slate-400 bg-white rounded-2xl border border-slate-200 shadow-sm">No timeline data available</div>
+  );
 
   return (
-    <div className="flex flex-col h-full w-full rounded-2xl bg-white border border-slate-200 p-3 shadow-sm">
-      <div className="mb-2 flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
-          <TrendingUp size={20} />
-        </div>
-        <h3 className="text-lg font-bold text-slate-800">Worldwide Covid-19 Confirmed Cases Over Time.</h3>
+    <div className="flex flex-col h-full w-full rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+      <div className="mb-2">
+        <h3 className="text-lg font-bold text-slate-800">Global Timeline Trajectory</h3>
       </div>
-
-      <div className="h-full min-h-0 flex-1 w-full">
+      <div className="flex-1 min-h-0 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 20, bottom: 20 }}>
             <defs>
               <linearGradient id="colorConfirmed" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorDeaths" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#e11d48" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#e11d48" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-            <XAxis 
-              dataKey="date" 
-              axisLine={false} 
-              tickLine={false} 
-              tick={{ fill: '#64748b' }} 
-              minTickGap={30}
-              tickFormatter={(val) => {
-                const d = new Date(val);
-                return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}`;
-              }} 
-            />
-            <YAxis 
-              axisLine={false} 
-              tickLine={false} 
-              tickFormatter={(val) => (val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : (val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val))} 
-              tick={{ fill: '#64748b' }} 
-            />
-            <Tooltip 
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <XAxis dataKey="Date" tick={{fill: '#94a3b8', fontSize: 12}} tickLine={false} axisLine={false} dy={10} minTickGap={30} 
+                   tickFormatter={(val) => {
+                     const d = new Date(val);
+                     return `${d.toLocaleString('default', { month: 'short' })} ${d.getDate()}`;
+                   }} label={{ value: "Timeline (Date)", position: "insideBottom", offset: -15, fill: "#64748b", fontSize: 12, fontWeight: 600 }} />
+            <YAxis tick={{fill: '#94a3b8', fontSize: 12}} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val / 1000000).toFixed(1)}M`} />
+            <Tooltip
               contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
               labelFormatter={(val) => new Date(val).toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })}
-              formatter={(value) => [value.toLocaleString(), 'Confirmed Cases']}
             />
-            <Area type="monotone" dataKey="Confirmed" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorConfirmed)" />
+            <Area type="monotone" dataKey="Confirmed" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorConfirmed)" />
+            <Area type="monotone" dataKey="Recovered" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRecovered)" />
+            <Area type="monotone" dataKey="Deaths" stroke="#e11d48" strokeWidth={3} fillOpacity={1} fill="url(#colorDeaths)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

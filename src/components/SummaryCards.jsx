@@ -1,62 +1,37 @@
 import React, { useMemo } from 'react';
-import { Activity, ShieldCheck, Skull } from 'lucide-react';
+import { Activity, ShieldCheck, HeartPulse, ShieldAlert } from 'lucide-react';
 
 export default function SummaryCards({ data }) {
   const totals = useMemo(() => {
-    if (!data || data.length === 0) return { Confirmed: 0, Recovered: 0, Deaths: 0 };
+    if (!data || data.length === 0) return { Confirmed: 0, Recovered: 0, Deaths: 0, Active: 0 };
     return {
       Confirmed: data.reduce((sum, row) => sum + (row['Confirmed'] || 0), 0),
+      Deaths: data.reduce((sum, row) => sum + (row['Deaths'] || 0), 0),
       Recovered: data.reduce((sum, row) => sum + (row['Recovered'] || 0), 0),
-      Deaths: data.reduce((sum, row) => sum + (row['Deaths'] || 0), 0)
+      Active: data.reduce((sum, row) => sum + (row['Active'] || 0), 0)
     };
   }, [data]);
 
   const cards = [
-    {
-      title: 'Total Confirmed',
-      value: totals.Confirmed,
-      icon: Activity,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      borderColor: 'border-blue-200'
-    },
-    {
-      title: 'Total Recovered',
-      value: totals.Recovered,
-      icon: ShieldCheck,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
-      borderColor: 'border-emerald-200'
-    },
-    {
-      title: 'Total Deaths',
-      value: totals.Deaths,
-      icon: Skull,
-      color: 'text-rose-600',
-      bgColor: 'bg-rose-100',
-      borderColor: 'border-rose-200'
-    }
+    { label: 'Confirmed', value: totals.Confirmed, color: 'text-indigo-600', bg: 'bg-indigo-50', icon: Activity },
+    { label: 'Deaths', value: totals.Deaths, color: 'text-rose-600', bg: 'bg-rose-50', icon: ShieldAlert },
+    { label: 'Recovered', value: totals.Recovered, color: 'text-emerald-600', bg: 'bg-emerald-50', icon: ShieldCheck },
+    { label: 'Active', value: totals.Active, color: 'text-amber-600', bg: 'bg-amber-50', icon: HeartPulse },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-0">
-      {cards.map((card, idx) => (
-        <div 
-          key={idx} 
-          className={`relative overflow-hidden rounded-2xl border ${card.borderColor} bg-white p-3 shadow-sm transition-all hover:shadow-md`}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500 mb-1">{card.title}</p>
-              <h2 className={`text-xl font-bold ${card.color}`}>
-                {card.value.toLocaleString()}
-              </h2>
-            </div>
-            <div className={`p-3 rounded-full ${card.bgColor} ${card.color}`}>
-              <card.icon size={20} />
-            </div>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+      {cards.map((card, i) => (
+        <div key={i} className={`rounded-2xl p-4 border border-slate-100/50 shadow-sm flex items-center gap-4 transition-transform hover:-translate-y-1 ${card.bg}`}>
+          <div className={`p-3 rounded-xl bg-white shadow-sm ${card.color}`}>
+            <card.icon size={24} strokeWidth={2.5} />
           </div>
-          <div className={`absolute bottom-0 left-0 h-1 w-full ${card.bgColor}`} />
+          <div>
+            <p className="text-sm font-semibold text-slate-500 mb-1">{card.label}</p>
+            <p className={`text-2xl font-bold tracking-tight ${card.color}`}>
+              {card.value.toLocaleString()}
+            </p>
+          </div>
         </div>
       ))}
     </div>

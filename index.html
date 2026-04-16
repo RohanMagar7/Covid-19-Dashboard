@@ -5,6 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>covid-dashboard</title>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        document.body.innerHTML += '<div style="color:red; font-family:monospace; padding:20px; z-index:9999; position:absolute; top:0; left:0; background:white; width:100%; height:100%;"><h1 style="margin-top:0">Uncaught Error</h1>' + message + '<br>' + source + ':' + lineno + '<br><pre>' + (error ? error.stack : '') + '</pre></div>';
+      };
+      window.onunhandledrejection = function(event) {
+        document.body.innerHTML += '<div style="color:red; font-family:monospace; padding:20px; z-index:9999; position:absolute; top:0; left:0; background:white; width:100%; height:100%;"><h1 style="margin-top:0">Unhandled Promise Rejection</h1>' + event.reason + '</div>';
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>
